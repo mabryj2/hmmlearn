@@ -81,28 +81,29 @@ def _forward_jnm(int n_samples, int n_components,
     work_buffer[0, :] = np.exp(log_startprob)
     cdef dtype_t[:, :] next_last = work_buffer
 
-    cdef dtype_t[:, :] transmat = np.exp(framelogprob)
-    cdef dtype_t[:, :] frameprob = np.exp(log_transmat)
+    cdef dtype_t[:, :] transmat = np.exp(log_transmat)
+    cdef dtype_t[:, :] frameprob = np.exp(framelogprob)
 
     # with nogil:
     # iterate
     for t in range(n_samples):
         _last = &next_last[t%2,0]  # clever way to switch last and next and get state 0 starting prob
         _next = &next_last[(t+1)%2,0]
-        printf("_last: {}".format(_last))
+        # print np.array([_last[i] for i in range(n_components)])
+        # print np.array(next_last)
+
 
         for i in range(n_components):
-            _last[i] = _last[i]*framelogprob[i, t]
+            _last[i] = _last[i]*frameprob[t, i]
         for i in range(n_components):
             gamma[t] += _last[i]
         for i in range(n_components):
             _last[i] /= gamma[t]  # so this prevents underflow, but we don't work in log space?
-            fwdlattice[t,i] = _last[i]
+            fwdlattice[t,i] = logl(_last[i])
         for i in range(n_components):
             _next[i] = 0
             for j in range(n_components):
                 _next[i] += _last[j] * transmat[j, i]
-    fwdlattice = np.log(fwdlattice)
 
 def _backward(int n_samples, int n_components,
               dtype_t[:] log_startprob,
