@@ -10,7 +10,7 @@ from sklearn.base import BaseEstimator, _pprint
 from sklearn.utils import check_array, check_random_state
 from sklearn.utils.validation import check_is_fitted
 
-from . import _hmmc
+from hmmlearn import _hmmc
 from .utils import normalize, log_normalize, iter_from_X_lengths, log_mask_zero
 
 
@@ -459,6 +459,15 @@ class _BaseHMM(BaseEstimator):
         n_samples, n_components = framelogprob.shape
         fwdlattice = np.zeros((n_samples, n_components))
         _hmmc._forward(n_samples, n_components,
+                       log_mask_zero(self.startprob_),
+                       log_mask_zero(self.transmat_),
+                       framelogprob, fwdlattice)
+        return logsumexp(fwdlattice[-1]), fwdlattice
+
+    def _do_forward_pass_jnm(self, framelogprob):
+        n_samples, n_components = framelogprob.shape
+        fwdlattice = np.zeros((n_samples, n_components))
+        _hmmc._forward_jnm(n_samples, n_components,
                        log_mask_zero(self.startprob_),
                        log_mask_zero(self.transmat_),
                        framelogprob, fwdlattice)

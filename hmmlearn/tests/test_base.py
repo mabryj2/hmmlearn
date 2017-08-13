@@ -75,6 +75,19 @@ class TestBaseAgainstWikipedia(object):
                                   [0.0298, 0.0046]])
         assert np.allclose(np.exp(fwdlattice), reffwdlattice, 4)
 
+    def test_do_forward_pass_jnm(self):
+        logprob, fwdlattice = self.hmm._do_forward_pass_jnm(self.framelogprob)
+
+        reflogprob = -3.3725
+        assert round(logprob, 4) == reflogprob
+        reffwdlattice = np.array([[0.4500, 0.1000],
+                                  [0.3105, 0.0410],
+                                  [0.0230, 0.0975],
+                                  [0.0408, 0.0150],
+                                  [0.0298, 0.0046]])
+        assert np.allclose(np.exp(fwdlattice), reffwdlattice, 4)
+
+
     def test_do_backward_pass(self):
         bwdlattice = self.hmm._do_backward_pass(self.framelogprob)
 

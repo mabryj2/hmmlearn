@@ -44,6 +44,8 @@ CLASSIFIERS = [
 ]
 
 import hmmlearn
+import numpy as np
+from setuptools import find_packages
 
 VERSION = hmmlearn.__version__
 
@@ -62,13 +64,20 @@ setup_options = dict(
     maintainer_email=MAINTAINER_EMAIL,
     license=LICENSE,
     url="https://github.com/hmmlearn/hmmlearn",
-    packages=["hmmlearn", "hmmlearn.tests"],
+    # packages=["hmmlearn", "hmmlearn.tests"],
+    packages=find_packages(),
+    include_package_data=True,
     classifiers=CLASSIFIERS,
     ext_modules=[
-        Extension("hmmlearn._hmmc", ["hmmlearn/_hmmc.c"],
-                  extra_compile_args=["-O3"],
-                  **get_info("npymath"))
+        # Extension("ext_moduleshmmlearn._hmmc", ["hmmlearn/_hmmc.c"],
+        #           extra_compile_args=["-O3"],
+        #           **get_info("npymath"))
+        Extension("hmmlearn._hmmc",
+                  sources=["hmmlearn/_hmmc.pyx"],
+                  include_dirs=[np.get_include()],
+                  ),
     ],
+
     install_requires=install_requires,
     tests_require=tests_require,
     extras_require={
